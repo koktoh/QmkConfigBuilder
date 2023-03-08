@@ -1,0 +1,27 @@
+﻿@page "/"
+@inject NavigationManager Navigation
+
+<PageTitle>Index</PageTitle>
+
+<RadzenCard class="border rz-border-color-base-400 bg-light shadow-none">
+    <RadzenStack>
+        <RadzenText TextStyle="TextStyle.DisplayH5" class="user-select-none" Text="これは何？" />
+        QMK の設定ファイルを作るプログラム
+        <RadzenText TextStyle="TextStyle.DisplayH5" class="user-select-none" Text="作れるファイルは？" />
+        <ul class="list-group mb-3">
+            <li class="list-group-item user-select-none">info.json</li>
+            <li class="list-group-item user-select-none">Keyboard Layout Editor 用 JSON</li>
+            <li class="list-group-item user-select-none">VIA/Remap 用 JSON</li>
+        </ul>
+    </RadzenStack>
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
+        <RadzenButton Size="ButtonSize.Large" Text="Get started" Click="@this.OnClick" />
+    </RadzenStack>
+</RadzenCard>
+
+@code {
+    private void OnClick()
+    {
+        Navigation.NavigateTo("editor");
+    }
+}
