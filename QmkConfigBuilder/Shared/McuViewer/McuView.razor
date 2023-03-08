@@ -1,0 +1,111 @@
+﻿@using QmkConfigBuilder.Models.MCU;
+@using QmkConfigBuilder.Models.MCU.Definitions.Pinout;
+@using QmkConfigBuilder.Shared.Common;
+@using QmkConfigBuilder.Shared.MatrixEditor;
+@inject QmkConfigBuilder.StateContainer.IKeyboardStateContainer KeyboardStateContainer
+@inherits ComponentBase
+@implements IDisposable
+
+<CommonCard>
+    <RadzenStack Orientation="Orientation.Horizontal">
+        <RadzenStack Orientation="Orientation.Vertical">
+            <McuInfoView SelectedMcu="@this.KeyboardStateContainer.KeyboardDefinitions.ControllerUnit" SelectedMcuChanged="@this.OnSelectedMcuChanged" @bind-VisibleAlternatePins="@this._visibleAlternatePins" Disabled="@this.KeyboardStateContainer.EditingMatrix" />
+            <MatrixEditorView RowEditButtonClicked="@this.OnEditButtonClicked" ColumnEditButtonClicked="@this.OnEditButtonClicked" />
+        </RadzenStack>
+        <McuImageView MCU="this.KeyboardStateContainer.KeyboardDefinitions.ControllerUnit" MatrixDefinitionsList="@this.KeyboardStateContainer.KeyboardDefinitions.GetAllMatrixDefinitions()" AlternatePinVisiblity="this._visibleAlternatePins" SelectedPin="this._lastSelectedPin" SelectedPinChanged="@this.OnSelectedPinChanged" />
+    </RadzenStack>
+</CommonCard>
+
+@code {
+    private bool _visibleAlternatePins = false;
+    private IPin? _lastSelectedPin;
+
+    public void UpdateMatrixRowPin(IPin pin)
+    {
+        if (this.KeyboardStateContainer.SelectedMatrix is null || !this.KeyboardStateContainer.KeyboardDefinitions.RowMatrixDefinitions.Contains(this.KeyboardStateContainer.SelectedMatrix))
+        {
+            return;
+        }
+
+        if (this.KeyboardStateContainer.KeyboardDefinitions.RowMatrixDefinitions.ContainsPin(this.KeyboardStateContainer.SelectedMatrix, pin))
+        {
+            this.KeyboardStateContainer.KeyboardDefinitions.RowMatrixDefinitions.RemovePin(this.KeyboardStateContainer.SelectedMatrix, pin);
+        }
+        else
+        {
+            this.KeyboardStateContainer.KeyboardDefinitions.RowMatrixDefinitions.AddPin(this.KeyboardStateContainer.SelectedMatrix, pin);
+        }
+    }
+
+    public void UpdateMatrixColumnPin(IPin pin)
+    {
+        if (this.KeyboardStateContainer.SelectedMatrix is null || !this.KeyboardStateContainer.KeyboardDefinitions.ColMatrixDefinitions.Contains(this.KeyboardStateContainer.SelectedMatrix))
+        {
+            return;
+        }
+
+        if (this.KeyboardStateContainer.KeyboardDefinitions.ColMatrixDefinitions.ContainsPin(this.KeyboardStateContainer.SelectedMatrix, pin))
+        {
+            this.KeyboardStateContainer.KeyboardDefinitions.ColMatrixDefinitions.RemovePin(this.KeyboardStateContainer.SelectedMatrix, pin);
+        }
+        else
+        {
+            this.KeyboardStateContainer.KeyboardDefinitions.ColMatrixDefinitions.AddPin(this.KeyboardStateContainer.SelectedMatrix, pin);
+        }
+    }
+
+    private void UpdateMatrixPin(IPin pin)
+    {
+        if (!this.KeyboardStateContainer.EditingMatrix || this.KeyboardStateContainer.SelectedMatrix is null)
+        {
+            return;
+        }
+
+        if (this.KeyboardStateContainer.SelectedMatrix.MatrixType == Models.KeyboardDefinitions.Matrix.MatrixType.Row)
+        {
+            this.UpdateMatrixRowPin(pin);
+        }
+        else
+        {
+            this.UpdateMatrixColumnPin(pin);
+        }
+    }
+
+    private void OnSelectedPinChanged(IPin pin)
+    {
+        if (this._lastSelectedPin == pin)
+        {
+            this._lastSelectedPin = null;
+            this.StateHasChanged();
+            return;
+        }
+
+        this._lastSelectedPin = pin;
+        this.UpdateMatrixPin(pin);
+    }
+
+    private void OnSelectedMcuChanged(IControllerUnit mcu)
+    {
+        this.KeyboardStateContainer.KeyboardDefinitions.ControllerUnit = mcu;
+        this._lastSelectedPin = null;
+    }
+
+    private void OnEditButtonClicked()
+    {
+        this._lastSelectedPin = null;
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        this.KeyboardStateContainer.OnMatrixChanged += this.StateHasChanged;
+        this.KeyboardStateContainer.OnMatrixEditingStateChanged += this.StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        this.KeyboardStateContainer.OnMatrixChanged -= this.StateHasChanged;
+        this.KeyboardStateContainer.OnMatrixEditingStateChanged -= this.StateHasChanged;
+    }
+}

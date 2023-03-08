@@ -1,0 +1,20 @@
+﻿@using QmkConfigBuilder.Models.MCU.Definitions.Pinout.PinDefinitions.General.I2C;
+@using QmkConfigBuilder.Models.MCU.Definitions.Pinout;
+@using QmkConfigBuilder.Shared.Common;
+@inject QmkConfigBuilder.StateContainer.IKeyboardStateContainer KeyboardStateContainer
+
+<LabeledCard Label="OLED">
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center">
+        <RadzenLabel Text="SDA" />
+        <RadzenDropDown @bind-Value="@this._sdaPin" Data="@this.KeyboardStateContainer.KeyboardDefinitions.ControllerUnit.GetAllPins().Where(x=>x.GetAllPinfunctions().Any(x=>x is SDA))" TextProperty="MainPinFunction.Label" AllowClear="true" />
+    </RadzenStack>
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center">
+        <RadzenLabel Text="SCL" />
+        <RadzenDropDown @bind-Value="@this._sclPin" Data="@this.KeyboardStateContainer.KeyboardDefinitions.ControllerUnit.GetAllPins().Where(x=>x.GetAllPinfunctions().Any(x=>x is SCL))" TextProperty="MainPinFunction.Label" AllowClear="true" />
+    </RadzenStack>
+</LabeledCard>
+
+@code {
+    private IPin? _sdaPin;
+    private IPin? _sclPin;
+}

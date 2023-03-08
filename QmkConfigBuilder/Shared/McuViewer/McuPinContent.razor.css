@@ -1,0 +1,17 @@
+﻿.pin-box {
+    --bg-color: transparent;
+    --txt-color: black;
+    background-color: var(--bg-color);
+    color: var(--txt-color);
+    width: 75px;
+    height: 16px;
+    text-align: center;
+    font-size: 11px;
+    user-select: none;
+}
+
+.chain {
+    border-top: 2px solid;
+    content: "";
+    width: 20px;
+}

@@ -1,0 +1,163 @@
+﻿@using System.Drawing;
+@using QmkConfigBuilder.Extensions;
+@using QmkConfigBuilder.Models.KeyboardDefinitions.Matrix;
+@using QmkConfigBuilder.Models.MCU.Definitions.Pinout;
+@using QmkConfigBuilder.Models.MCU.Definitions.Pinout.PinDefinitions
+@inherits ComponentBase
+
+@if (this.Pin is not null || this.MatrixDefinitions is not null)
+{
+    <div style="--bg-color:@this.GetBackgroundColor();@this.GetPadding()" class="@this.GetCssClass()" @onclick="this.OnClick">
+        @foreach (var context in this.GetDisplayContexts())
+        {
+            <McuPinContent PinDisplayContext="context" />
+        }
+    </div>
+}
+
+@code {
+    [Parameter]
+    public IPin? Pin { get; set; }
+    [Parameter]
+    public MatrixDefinitions? MatrixDefinitions { get; set; }
+    [Parameter]
+    public bool VisibleAlternatePins { get; set; } = false;
+    [Parameter]
+    public PinOrientation Orientation { get; set; } = PinOrientation.Left;
+    [Parameter]
+    public EventCallback<IPin> OnClickCallback { get; set; }
+    [Parameter]
+    public bool IsSelected { get; set; } = false;
+
+    private readonly IReadOnlyCollection<string> _baseCssClass = new[] { "pin-container", "d-flex", "align-items-center" };
+
+    private string _backgroundColor = Color.Transparent.Name;
+
+    private bool IsReverse => this.Orientation == PinOrientation.Left || this.Orientation == PinOrientation.Bottom;
+
+    private async Task OnClick()
+    {
+        if (this.Pin is null)
+        {
+            return;
+        }
+
+        if (this.Pin.MainPinFunction.PinType != PinType.IO
+        || this.Pin.MainPinFunction.PinFunctionType != PinFunctionType.Digital)
+        {
+            return;
+        }
+
+        this.ToggleSelected();
+
+        await this.OnClickCallback.InvokeAsync(this.Pin);
+    }
+
+    private void ToggleSelected()
+    {
+        this.IsSelected = !this.IsSelected;
+    }
+
+    private string GetCssClass()
+    {
+        switch (this.Orientation)
+        {
+            case PinOrientation.Left:
+            case PinOrientation.Bottom:
+                return this._baseCssClass.Append("justify-content-end").JoinSpace();
+            case PinOrientation.Top:
+            case PinOrientation.Right:
+            default:
+                return this._baseCssClass.JoinSpace();
+        }
+    }
+
+    private string GetBackgroundColor()
+    {
+        if (this.IsSelected)
+        {
+            return "var(--rz-danger-light)";
+        }
+
+        return Color.Transparent.Name;
+    }
+
+    private string GetPadding()
+    {
+        switch (this.Orientation)
+        {
+            case PinOrientation.Left:
+            case PinOrientation.Bottom:
+                return new Padding(0, 0, 0, 2).Value;
+            case PinOrientation.Top:
+            case PinOrientation.Right:
+            default:
+                return new Padding(0, 2, 0, 0).Value;
+        }
+    }
+
+    private IEnumerable<PinDisplayContext> GetAlternateDisplayContexts()
+    {
+        if (this.Pin is null)
+        {
+            return Enumerable.Empty<PinDisplayContext>();
+        }
+
+        if (this.IsReverse)
+        {
+            return this.Pin.GetAlternatePinfunctions().Reverse().Select(x => new PinDisplayContext(x, this.Orientation));
+        }
+
+        return this.Pin.GetAlternatePinfunctions().Select(x => new PinDisplayContext(x, this.Orientation));
+    }
+
+    private IEnumerable<PinDisplayContext> GetMainDisplayContext()
+    {
+        if (this.Pin is null)
+        {
+            yield break;
+        }
+
+        if (this.MatrixDefinitions is null)
+        {
+            yield return new PinDisplayContext(this.Pin.MainPinFunction, this.Orientation);
+            yield break;
+        }
+
+        if (this.IsReverse)
+        {
+            yield return new PinDisplayContext(this.MatrixDefinitions, this.Orientation);
+            yield return new PinDisplayContext(this.Pin.MainPinFunction, this.Orientation);
+        }
+        else
+        {
+            yield return new PinDisplayContext(this.Pin.MainPinFunction, this.Orientation);
+            yield return new PinDisplayContext(this.MatrixDefinitions, this.Orientation);
+        }
+    }
+
+    private IEnumerable<PinDisplayContext> GetAllDisplayContext()
+    {
+        if (IsReverse)
+        {
+            return this.GetAlternateDisplayContexts().Concat(this.GetMainDisplayContext());
+        }
+
+        return this.GetMainDisplayContext().Concat(this.GetAlternateDisplayContexts());
+    }
+
+    private IEnumerable<PinDisplayContext> GetDisplayContexts()
+    {
+        if (this.Pin is null)
+        {
+            return Enumerable.Empty<PinDisplayContext>();
+        }
+
+        if (this.VisibleAlternatePins)
+        {
+            return this.GetAllDisplayContext();
+        }
+
+        return this.GetMainDisplayContext();
+    }
+}

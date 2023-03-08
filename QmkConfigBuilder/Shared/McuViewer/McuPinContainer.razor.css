@@ -1,0 +1,6 @@
+﻿.pin-container {
+    --bg-color: transparent;
+    height: 20px;
+    width: auto;
+    background-color: var(--bg-color)
+}

@@ -1,0 +1,26 @@
+﻿@using System.Drawing;
+@using QmkConfigBuilder.Models.KeyboardDefinitions.Matrix;
+@using QmkConfigBuilder.Models.MCU.Definitions.Pinout.PinDefinitions;
+
+@if (this.PinDisplayContext is not null)
+{
+    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Gap="0">
+        @if (this.PinDisplayContext.Orientation == PinOrientation.Right || this.PinDisplayContext.Orientation == PinOrientation.Top)
+        {
+            <div class="chain" />
+        }
+        <div class="pin-box" style="--bg-color:@(this.PinDisplayContext.BackgroundColor); --txt-color:@(this.PinDisplayContext.TextColor);">
+            @this.PinDisplayContext.Text
+        </div>
+        @if (this.PinDisplayContext.Orientation == PinOrientation.Left || this.PinDisplayContext.Orientation == PinOrientation.Bottom)
+        {
+            <div class="chain" />
+        }
+    </RadzenStack>
+}
+
+
+@code {
+    [Parameter]
+    public PinDisplayContext? PinDisplayContext { get; set; }
+}

@@ -1,0 +1,37 @@
+﻿#left-pins {
+    --left-width: auto;
+    width: var(--left-width);
+}
+
+#bottom-pins {
+    --bottom-offset-y: 0px;
+    transform: translateY(var(--bottom-offset-y)) rotate(-90deg);
+}
+
+#right-pins {
+    --right-width: auto;
+    width: var(--right-width);
+}
+
+#top-pins {
+    --top-offset-y: 0px;
+    transform: translateY(var(--top-offset-y)) rotate(-90deg);
+}
+
+.mcu-view {
+}
+
+    .mcu-view::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    .mcu-view::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0.3);
+        border-radius: 5px;
+    }
+
+    .mcu-view::-webkit-scrollbar-thumb {
+        background-color: navy;
+        border-radius: 5px;
+    }

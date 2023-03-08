@@ -1,0 +1,43 @@
+﻿<RadzenCard class="d-flex flex-fill overflow-auto">
+    <div class="mx-auto" style="max-height:500px;">
+        <div class="@this.GetCssClass() my-auto">
+            <div id="left-pins">
+                @foreach (var pin in this.MCU.GetLeftPins())
+                {
+                    <McuPinContainer Pin="@pin" MatrixDefinitions="@this.GetMatrixDefinitions(pin)" VisibleAlternatePins="@this.AlternatePinVisiblity" Orientation="PinOrientation.Left" IsSelected="@(this.SelectedPin?.Equals(pin) ?? false)" OnClickCallback="this.SetSelectedPin" />
+                }
+            </div>
+            <div class="d-flex flex-column" style="max-width:@(this.GetImageContext().Width)px;">
+                @if (this.MCU.GetTopPins().Any())
+                {
+                    <div class="d-flex justify-content-center align-items-center" style="max-height:@(this._verticalItemHeight)px;">
+                        <div id="top-pins" style="--top-offset-y:@(this._topPinOffsetY)px">
+                            @foreach (var pin in this.MCU.GetTopPins().Reverse())
+                            {
+                                <McuPinContainer Pin="pin" MatrixDefinitions="@this.GetMatrixDefinitions(pin)" VisibleAlternatePins="@this.AlternatePinVisiblity" Orientation="PinOrientation.Top" IsSelected="@(this.SelectedPin?.Equals(pin) ?? false)" OnClickCallback="this.SetSelectedPin" />
+                            }
+                        </div>
+                    </div>
+                }
+                <img src="@this.GetImageContext().Path" width="@this.GetImageContext().Width" alt="@this.MCU.Name">
+                @if (this.MCU.GetBottomPins().Any())
+                {
+                    <div class="d-flex justify-content-center align-items-center" style="max-height:@(this._verticalItemHeight)px;">
+                        <div id="bottom-pins" style="--bottom-offset-y:@(this._bottomPinOffsetY)px">
+                            @foreach (var pin in this.MCU.GetBottomPins())
+                            {
+                                <McuPinContainer Pin="pin" MatrixDefinitions="@this.GetMatrixDefinitions(pin)" VisibleAlternatePins="@this.AlternatePinVisiblity" Orientation="PinOrientation.Bottom" IsSelected="@(this.SelectedPin?.Equals(pin) ?? false)" OnClickCallback="this.SetSelectedPin" />
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+            <div id="right-pins">
+                @foreach (var pin in this.MCU.GetRightPins().Reverse())
+                {
+                    <McuPinContainer Pin="@pin" MatrixDefinitions="@this.GetMatrixDefinitions(pin)" VisibleAlternatePins="this.AlternatePinVisiblity" Orientation="PinOrientation.Right" IsSelected="@(this.SelectedPin?.Equals(pin) ?? false)" OnClickCallback="this.SetSelectedPin" />
+                }
+            </div>
+        </div>
+    </div>
+</RadzenCard>
