@@ -1,0 +1,55 @@
+﻿@using QmkConfigBuilder.Models.KeyboardComponents;
+@using QmkConfigBuilder.StateContainer;
+@inject ILayoutStateContainer LayoutStateContainer
+
+<RadzenCard class="d-flex flex-column flex-fill overflow-auto mw-100" Style="min-height:500px">
+    <div class="position-relative">
+        @foreach (var row in this.LayoutStateContainer.CurrentLayout.Rows)
+        {
+            foreach (var key in row.Keys)
+            {
+                <KeyComponent @key="key" Key="key" IsSelected="this.IsSelected(key)" OnClickCallback="this.OnClick" />
+            }
+        }
+        @ChildContent
+    </div>
+</RadzenCard>
+
+@code {
+    [Parameter]
+    public IEnumerable<IKey>? SelectedKeyList { get; set; }
+
+    [Parameter]
+    public EventCallback<IKey> SelectedKeyChanged { get; set; }
+
+    [Parameter]
+    public bool EnableMultipleSelection { get; set; } = false;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private bool IsSelected(IKey key)
+    {
+        if (this.SelectedKeyList is null || !this.SelectedKeyList.Any())
+        {
+            return false;
+        }
+
+        if (this.EnableMultipleSelection)
+        {
+            return this.SelectedKeyList.Contains(key);
+        }
+        else
+        {
+            return this.SelectedKeyList.First().Equals(key);
+        }
+    }
+
+    private async Task OnClick(IKey key)
+    {
+        if (this.SelectedKeyChanged.HasDelegate)
+        {
+            await this.SelectedKeyChanged.InvokeAsync(key);
+        }
+    }
+}

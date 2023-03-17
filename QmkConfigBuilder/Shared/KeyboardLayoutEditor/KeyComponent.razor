@@ -1,0 +1,71 @@
+﻿@using QmkConfigBuilder.Models.KeyboardComponents;
+@using QmkConfigBuilder.Extensions;
+@using System.Drawing;
+@inherits ComponentBase
+
+@if (this.Key is not null)
+{
+    <div id="@(this.Key.Id.ToString("N"))" class="@this.GetCssClass()" style="--key-pos-x:@(this.Key.PosX);--key-pos-y:@(this.Key.PosY);--key-unit-width:@(this.Key.Width);--key-unit-height:@(this.Key.Height);--key-border-color:@(this.GetBorderColor());" @onclick="this.OnClick">
+        @switch (this.Key.KeyType)
+        {
+            case KeyType.ISOEnter:
+                <div class="key-border upper"></div>
+                <div class="key-border lower"></div>
+                <div class="key upper"></div>
+                <div class="key lower"></div>
+                break;
+            case KeyType.Normal:
+            case KeyType.BigAssEnter:
+            default:
+                <div class="key-border"></div>
+                <div class="key"></div>
+                break;
+        }
+    </div>
+}
+
+@code {
+    [Parameter]
+    public IKey? Key { get; set; }
+
+    [Parameter]
+    public bool IsSelected { get; set; } = false;
+
+    [Parameter]
+    public EventCallback<IKey?> OnClickCallback { get; set; }
+
+    private readonly IReadOnlyCollection<string> _cssClass = new[] { "key-content" };
+
+    private string GetBorderColor()
+    {
+        if (this.IsSelected)
+        {
+            return "var(--rz-info-light)";
+        }
+
+        return Color.SlateGray.Name;
+    }
+
+    private string GetCssClass()
+    {
+        if (this.Key is null)
+        {
+            return this._cssClass.JoinSpace();
+        }
+
+        switch (this.Key.KeyType)
+        {
+            case KeyType.ISOEnter:
+                return this._cssClass.Append("iso-enter").JoinSpace();
+            case KeyType.Normal:
+            case KeyType.BigAssEnter:
+            default:
+                return this._cssClass.JoinSpace();
+        }
+    }
+
+    private async Task OnClick()
+    {
+        await this.OnClickCallback.InvokeAsync(this.Key);
+    }
+}

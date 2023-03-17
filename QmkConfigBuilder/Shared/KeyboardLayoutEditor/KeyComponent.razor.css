@@ -1,0 +1,75 @@
+﻿.key-content {
+    --key-unit-width: 1;
+    --key-unit-height: 1;
+    --key-pos-x: 0;
+    --key-pos-y: 0;
+    --key-content-padding: 1px;
+    --key-content-width: 50px;
+    --key-content-height: 50px;
+    --key-border-length: 2px;
+    --key-border-radious: 6px;
+    --key-border-color: slategray;
+    --key-radius: 3px;
+    position: absolute;
+    left: calc(var(--key-content-width) * var(--key-pos-x));
+    top: calc(var(--key-content-height) * var(--key-pos-y));
+    width: calc(var(--key-content-width) * var(--key-unit-width));
+    height: calc(var(--key-content-height) * var(--key-unit-height));
+}
+
+::deep > .key-border {
+    position: absolute;
+    left: var(--key-content-padding);
+    top: var(--key-content-padding);
+    width: calc(var(--key-content-width) * var(--key-unit-width) - var(--key-content-padding) * 2);
+    height: calc(var(--key-content-height) * var(--key-unit-height) - var(--key-content-padding) * 2);
+    border-radius: var(--key-border-radious);
+    background-color: var(--key-border-color);
+    cursor: pointer;
+}
+
+::deep > .key {
+    position: absolute;
+    left: calc(var(--key-content-padding) + var(--key-border-length));
+    top: calc(var(--key-content-padding) + var(--key-border-length));
+    width: calc(var(--key-content-width) * var(--key-unit-width) - (var(--key-content-padding) + var(--key-border-length)) * 2);
+    height: calc(var(--key-content-height) * var(--key-unit-height) - (var(--key-content-padding) + var(--key-border-length)) * 2);
+    border-radius: var(--key-radius);
+    background-color: white;
+    cursor: pointer;
+}
+
+::deep.key-content.iso-enter {
+    --key-unit-width: 1.5;
+    --key-unit-height: 2;
+    width: calc(var(--key-content-width) * var(--key-unit-width));
+    height: calc(var(--key-content-height) * var(--key-unit-height));
+}
+
+    ::deep.key-content.iso-enter > .key-border.upper {
+        --key-unit-height: 1;
+        width: calc(var(--key-content-width) * var(--key-unit-width) - var(--key-content-padding) * 2);
+        height: calc(var(--key-content-height) * var(--key-unit-height) - var(--key-content-padding) * 2);
+    }
+
+    ::deep.key-content.iso-enter > .key-border.lower {
+        --key-unit-width: 1.25;
+        left: auto;
+        right: var(--key-content-padding);
+        width: calc(var(--key-content-width) * var(--key-unit-width) - var(--key-content-padding) * 2);
+        height: calc(var(--key-content-height) * var(--key-unit-height) - var(--key-content-padding) * 2);
+    }
+
+    ::deep.key-content.iso-enter > .key.upper {
+        --key-unit-height: 1;
+        width: calc(var(--key-content-width) * var(--key-unit-width) - (var(--key-content-padding) + var(--key-border-length)) * 2);
+        height: calc(var(--key-content-height) * var(--key-unit-height) - (var(--key-content-padding) + var(--key-border-length)) * 2);
+    }
+
+    ::deep.key-content.iso-enter > .key.lower {
+        --key-unit-width: 1.25;
+        left: auto;
+        right: calc(var(--key-content-padding) + var(--key-border-length));
+        width: calc(var(--key-content-width) * var(--key-unit-width) - (var(--key-content-padding) + var(--key-border-length)) * 2);
+        height: calc(var(--key-content-height) * var(--key-unit-height) - (var(--key-content-padding) + var(--key-border-length)) * 2);
+    }

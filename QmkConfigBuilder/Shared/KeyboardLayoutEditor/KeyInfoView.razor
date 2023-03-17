@@ -1,0 +1,102 @@
+﻿@using QmkConfigBuilder.Models.KeyboardComponents;
+@using QmkConfigBuilder.Shared.Common;
+@using QmkConfigBuilder.StateContainer;
+@implements IDisposable
+@inject ILayoutStateContainer LayoutStateContainer
+
+<LabeledCard Label="Key Data">
+    <RadzenStack Orientation="Orientation.Vertical">
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
+            <RadzenLabel class="user-select-none" Text="X" />
+            <RadzenNumeric Style="@($"max-width:{this._numelicConponentWidth};")" Min="0" TValue="double?" Value="this.LayoutStateContainer?.LastSelectedKey?.PosX" Change="this.OnPosXChanged" Step="0.25" Disabled="@this.IsDisable()" />
+        </RadzenStack>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
+            <RadzenLabel class="user-select-none" Text="Y" />
+            <RadzenNumeric Style="@($"max-width:{this._numelicConponentWidth};")" Min="0" TValue="double?" Value="this.LayoutStateContainer?.LastSelectedKey?.PosY" Change="this.OnPosYChanged" Step="0.25" Disabled="@this.IsDisable()" />
+        </RadzenStack>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
+            <RadzenLabel class="user-select-none" Text="Width" />
+            <RadzenNumeric Style="@($"max-width:{this._numelicConponentWidth};")" Min="0" TValue="double?" Value="this.LayoutStateContainer?.LastSelectedKey?.Width" Change="this.OnWidthChanged" Step="0.25" Disabled="@(this.IsDisable() || this.IsNotNormal())" />
+        </RadzenStack>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
+            <RadzenLabel class="user-select-none" Text="Height" />
+            <RadzenNumeric Style="@($"max-width:{this._numelicConponentWidth};")" Min="0" TValue="double?" Value="this.LayoutStateContainer?.LastSelectedKey?.Height" Change="this.OnHeightChanged" Step="0.25" Disabled="@(this.IsDisable() || this.IsNotNormal())" />
+        </RadzenStack>
+    </RadzenStack>
+</LabeledCard>
+
+@code {
+    private string _numelicConponentWidth = "auto";
+
+    [Parameter]
+    public bool Disabled { get; set; } = false;
+
+    private void OnWidthChanged(double? value)
+    {
+        if (this.LayoutStateContainer is null || value is null)
+        {
+            return;
+        }
+
+        this.LayoutStateContainer.UpdateSelectedKeyProperty(nameof(IKey.Width), value);
+    }
+
+    private void OnHeightChanged(double? value)
+    {
+        if (value is null)
+        {
+            return;
+        }
+
+        this.LayoutStateContainer.UpdateSelectedKeyProperty(nameof(IKey.Height), value);
+    }
+
+    private void OnPosXChanged(double? value)
+    {
+        if (value is null)
+        {
+            return;
+        }
+
+        this.LayoutStateContainer.UpdateSelectedKeyProperty(nameof(IKey.PosX), value);
+    }
+
+    private void OnPosYChanged(double? value)
+    {
+        if (value is null)
+        {
+            return;
+        }
+
+        this.LayoutStateContainer.UpdateSelectedKeyProperty(nameof(IKey.PosY), value);
+    }
+
+    private bool IsNotNormal()
+    {
+        if (this.LayoutStateContainer?.LastSelectedKey is null)
+        {
+            return false;
+        }
+
+        return this.LayoutStateContainer.LastSelectedKey.KeyType != KeyType.Normal;
+    }
+
+    private bool IsDisable()
+    {
+        return this.LayoutStateContainer?.LastSelectedKey is null || this.Disabled;
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        this.LayoutStateContainer.OnLayoutChanged += this.StateHasChanged;
+        this.LayoutStateContainer.OnSelectedKeyChanged += this.StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        this.LayoutStateContainer.OnLayoutChanged -= this.StateHasChanged;
+        this.LayoutStateContainer.OnSelectedKeyChanged -= this.StateHasChanged;
+    }
+}
