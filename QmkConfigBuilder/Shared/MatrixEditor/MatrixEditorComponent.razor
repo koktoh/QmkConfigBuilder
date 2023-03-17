@@ -1,0 +1,12 @@
+﻿@using QmkConfigBuilder.Models.KeyboardDefinitions.Matrix;
+
+<RadzenStack Orientation="Orientation.Horizontal" Gap="5">
+    <RadzenStack Orientation="Orientation.Horizontal" Gap="3">
+        <RadzenDropDown TValue="MatrixDefinitions" Value="@this.GetSelectedMatrixDefinitions()" Change="@(args => this.OnDropDownValueChanged(args))" Data="@this.GetMatrixDefinitionsList()" Disabled="@(this.Disabled || this.MatrixStateContainer.EditingMatrix)" />
+        <RadzenButton Icon="@this._editButtonIcon" Variant="Variant.Flat" ButtonStyle="this._buttonStyle" Click="this.OnClickEditButton" Disabled="@(this.Disabled || this.GetSelectedMatrixDefinitions() is null)" />
+    </RadzenStack>
+    <RadzenStack Orientation="Orientation.Horizontal" Gap="3">
+        <RadzenButton Icon="add" Variant="Variant.Outlined" ButtonStyle="this._buttonStyle" Click="@this.OnClickAddButton" Disabled="@(this.Disabled || this.MatrixStateContainer.EditingMatrix)" />
+        <RadzenButton Icon="remove" Variant="Variant.Outlined" ButtonStyle="this._buttonStyle" Click="@this.OnClickRemoveButton" Disabled="@(this.Disabled || this.MatrixStateContainer.EditingMatrix)" />
+    </RadzenStack>
+</RadzenStack>

@@ -1,0 +1,52 @@
+﻿@using QmkConfigBuilder.Models.KeyboardDefinitions.Matrix;
+@using QmkConfigBuilder.Shared.Common;
+@using QmkConfigBuilder.StateContainer;
+@implements IDisposable
+@inject IMatrixStateContainer MatrixStateContainer
+
+<LabeledCard Label="Matrix">
+    <RadzenStack Orientation="Orientation.Vertical">
+        <MatrixEditorComponent MatrixType="MatrixType.Row" EditButtonClicked="@this.RowEditButtonClicked" AddButtonClicked="@this.RowAddButtonClicked" RemoveButtonClicked="@this.RowRemoveButtonClicked" Disabled="@(this.Disabled || this.MatrixStateContainer.EditingMatrixColumn)" />
+        <MatrixEditorComponent MatrixType="MatrixType.Column" EditButtonClicked="@this.ColumnEditButtonClicked" AddButtonClicked="@this.ColumnAddButtonClicked" RemoveButtonClicked="@this.ColumnRemoveButtonClicked" Disabled="@(this.Disabled || this.MatrixStateContainer.EditingMatrixRow)" />
+        @ChildContent
+    </RadzenStack>
+</LabeledCard>
+
+
+@code {
+    [Parameter]
+    public bool Disabled { get; set; } = false;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public EventCallback RowEditButtonClicked { get; set; }
+    [Parameter]
+    public EventCallback RowAddButtonClicked { get; set; }
+    [Parameter]
+    public EventCallback RowRemoveButtonClicked { get; set; }
+
+    [Parameter]
+    public EventCallback ColumnEditButtonClicked { get; set; }
+    [Parameter]
+    public EventCallback ColumnAddButtonClicked { get; set; }
+    [Parameter]
+    public EventCallback ColumnRemoveButtonClicked { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        this.MatrixStateContainer.OnMatrixEditingStateChanged += this.StateHasChanged;
+        this.MatrixStateContainer.OnSelectedMatrixChanged += this.StateHasChanged;
+        this.MatrixStateContainer.OnMatrixChanged += this.StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        this.MatrixStateContainer.OnMatrixEditingStateChanged -= this.StateHasChanged;
+        this.MatrixStateContainer.OnSelectedMatrixChanged -= this.StateHasChanged;
+        this.MatrixStateContainer.OnMatrixChanged -= this.StateHasChanged;
+    }
+}

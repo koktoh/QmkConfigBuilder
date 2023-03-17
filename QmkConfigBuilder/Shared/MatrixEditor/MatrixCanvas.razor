@@ -1,0 +1,202 @@
+﻿@using QmkConfigBuilder.Models.KeyboardComponents;
+@using QmkConfigBuilder.Models.KeyboardDefinitions.Matrix;
+@using QmkConfigBuilder.StateContainer;
+@using Excubo.Blazor.Canvas;
+@implements IDisposable
+@inject IJSRuntime JS
+@inject ILayoutStateContainer LayoutStateContainer
+
+<div class="matrix-canvas" id="@this.Id">
+    <Canvas width="@this.GetWidth()" height="@this.GetHeight()" @ref="this._canvas" />
+</div>
+
+@code {
+    private readonly double _keyPixel = 50;
+    private readonly double _circleRadius = 8;
+    private readonly float _lineWidth = 8;
+
+    private string _rowColor = string.Empty;
+    private string _columnColor = string.Empty;
+
+    private Canvas? _canvas;
+
+    [Parameter]
+    public MatrixDefinitions? MatrixDefinition { get; set; }
+
+    public string Id => $"l{this.LayoutStateContainer?.Index ?? 0}{(this.MatrixDefinition?.MatrixType == MatrixType.Row ? "r" : "c") ?? string.Empty}{this.MatrixDefinition?.Index ?? 0}";
+
+    private IEnumerable<IKey> GetKeys()
+    {
+        if (this.MatrixDefinition is null)
+        {
+            return Enumerable.Empty<IKey>();
+        }
+
+        switch (this.MatrixDefinition.MatrixType)
+        {
+            case MatrixType.Row:
+                return this.LayoutStateContainer.CurrentLayout.GetMatrixRow(this.MatrixDefinition.Index)
+                    .OrderBy(x => x.PosX);
+            case MatrixType.Column:
+                return this.LayoutStateContainer.CurrentLayout.GetMatrixColumn(this.MatrixDefinition.Index)
+                    .OrderBy(x => x.PosY);
+            default:
+                return Enumerable.Empty<IKey>();
+        }
+    }
+
+    private int GetWidth()
+    {
+        if (this.MatrixDefinition is null || this.LayoutStateContainer is null)
+        {
+            return 0;
+        }
+
+        var keys = this.GetKeys();
+
+        if (!keys.Any())
+        {
+            return 0;
+        }
+
+        return (int)(keys.Max(x => x.PosX + x.Width) * this._keyPixel);
+    }
+
+    private int GetHeight()
+    {
+        if (this.MatrixDefinition is null || this.LayoutStateContainer is null)
+        {
+            return 0;
+        }
+
+        var keys = this.GetKeys();
+
+        if (!keys.Any())
+        {
+            return 0;
+        }
+
+        return (int)(keys.Max(x => x.PosY + x.Height) * this._keyPixel);
+    }
+
+    private Point ConvertToPoint(IKey key)
+    {
+        var x = (key.PosX + key.Width / 2) * this._keyPixel;
+        var y = (key.PosY + key.Height / 2) * this._keyPixel;
+
+        return new Point(x, y);
+    }
+
+
+    private async Task DrawAsync()
+    {
+        if (this._canvas is null || this.MatrixDefinition is null)
+        {
+            return;
+        }
+
+        await this.ClearAsync();
+
+        var points = this.GetKeys().Select(this.ConvertToPoint).ToList();
+
+        await using (var ctx = await this._canvas.GetContext2DAsync())
+        {
+            await ctx.LineWidthAsync(this._lineWidth);
+            await ctx.LineJoinAsync(LineJoin.Round);
+
+            switch (this.MatrixDefinition.MatrixType)
+            {
+                case MatrixType.Row:
+
+                    await ctx.FillStyleAsync(this._rowColor);
+                    await ctx.StrokeStyleAsync(this._rowColor);
+                    break;
+                case MatrixType.Column:
+                    await ctx.FillStyleAsync(this._columnColor);
+                    await ctx.StrokeStyleAsync(this._columnColor);
+                    break;
+                default:
+                    break;
+            }
+
+
+            foreach (var point in points)
+            {
+                await ctx.BeginPathAsync();
+                await ctx.ArcAsync(point.X, point.Y, this._circleRadius, 0, Math.PI * 2);
+                await ctx.FillAsync(FillRule.EvenOdd);
+            }
+
+
+            await ctx.BeginPathAsync();
+
+            for (int i = 0; i < points.Count; i++)
+            {
+                var point = points[i];
+
+                if (i == 0)
+                {
+                    await ctx.MoveToAsync(point.X, point.Y);
+                    continue;
+                }
+
+                await ctx.LineToAsync(point.X, point.Y);
+            }
+
+            await ctx.StrokeAsync();
+        }
+    }
+
+    private async Task ClearAsync()
+    {
+        if (this._canvas is null)
+        {
+            return;
+        }
+
+        await using (var ctx = await this._canvas.GetContext2DAsync())
+        {
+            await ctx.ClearRectAsync(0, 0, this.GetWidth(), this.GetHeight());
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        this.LayoutStateContainer.OnSelectedLayoutChanged += this.StateHasChanged;
+        this.LayoutStateContainer.OnMatrixChanged += this.StateHasChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        var utility = new JSUtility(this.JS);
+
+        this._rowColor = await utility.GetCssPropertyValueAsync(":root", "--rz-success");
+        this._columnColor = await utility.GetCssPropertyValueAsync(":root", "--rz-warning");
+
+        await this.DrawAsync();
+    }
+
+    public void Dispose()
+    {
+        this.LayoutStateContainer.OnSelectedLayoutChanged -= this.StateHasChanged;
+        this.LayoutStateContainer.OnMatrixChanged -= this.StateHasChanged;
+    }
+
+    private class Point
+    {
+        public double X { get; }
+        public double Y { get; }
+
+        public Point() : this(0, 0) { }
+
+        public Point(double x, double y)
+        {
+            this.X = x;
+            this.Y = y;
+        }
+    }
+}
