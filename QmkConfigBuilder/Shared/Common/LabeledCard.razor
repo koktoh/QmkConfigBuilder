@@ -1,0 +1,14 @@
+﻿<RadzenCard>
+    <RadzenStack Orientation="Orientation.Vertical">
+        <RadzenText class="border-bottom user-select-none" Style="border-color:--rz-base-400;" Text="@this.Label.ToUpper()" />
+        @this.ChildContent
+    </RadzenStack>
+</RadzenCard>
+
+@code {
+    [Parameter]
+    public string Label { get; set; } = string.Empty;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

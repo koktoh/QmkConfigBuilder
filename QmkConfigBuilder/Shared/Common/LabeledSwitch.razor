@@ -1,0 +1,38 @@
+﻿<RadzenCard class="border rz-border-color-base-400 shadow-none p-2">
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+        <RadzenSwitch @bind-Value="@this.BoundValue" Disabled="@this.Disabled" />
+        <RadzenLabel class="flex-fill user-select-none" Text="@this.Label" @onclick="this.OnClickLabel" />
+    </RadzenStack>
+</RadzenCard>
+
+@code {
+    [Parameter]
+    public string Label { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool Value { get; set; } = false;
+    [Parameter]
+    public EventCallback<bool> ValueChanged { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; } = false;
+
+    [Parameter]
+    public bool DisableLabelClick { get; set; } = false;
+
+    private bool BoundValue
+    {
+        get => this.Value;
+        set => this.ValueChanged.InvokeAsync(value);
+    }
+
+    private void OnClickLabel()
+    {
+        if (this.Disabled || this.DisableLabelClick)
+        {
+            return;
+        }
+
+        this.BoundValue = !this.BoundValue;
+    }
+}
