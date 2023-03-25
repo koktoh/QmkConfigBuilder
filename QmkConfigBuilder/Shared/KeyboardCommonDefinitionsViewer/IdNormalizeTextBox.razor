@@ -1,0 +1,41 @@
+﻿@using QmkConfigBuilder.Extensions;
+@using System.Text.RegularExpressions;
+@inherits RadzenComponent
+
+<RadzenTextBox Name="@this.Name" Placeholder="@this.Placeholder" @bind-Value="@this.BoundValue" Style="@this.Style" />
+
+@code {
+    [Parameter]
+    public string Name { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Placeholder { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Value { get; set; } = string.Empty;
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    private string BoundValue
+    {
+        get => this.Value;
+        set => this.ValueChanged.InvokeAsync(this.NormalizeIdString(value));
+    }
+
+    private string NormalizeIdString(string src)
+    {
+        if (src.IsNullOrWhiteSpace())
+        {
+            return src;
+        }
+
+        var match = Regex.Match(src, @"(0x)?(?<id>[a-fA-F0-9]{4})");
+
+        if (!match.Success)
+        {
+            return src;
+        }
+
+        return $"0x{match.Groups["id"].Value.ToUpper()}";
+    }
+}

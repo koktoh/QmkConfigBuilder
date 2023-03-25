@@ -1,11 +1,73 @@
 ﻿@page "/editor"
-@using QmkConfigBuilder.Shared.KeyboardLayoutEditor
-@using QmkConfigBuilder.Shared.McuViewer
+@using QmkConfigBuilder.Extensions;
+@using QmkConfigBuilder.Shared.KeyboardCommonDefinitionsViewer;
+@using QmkConfigBuilder.Shared.KeyboardLayoutEditor;
+@using QmkConfigBuilder.Shared.McuViewer;
+@inject QmkConfigBuilder.StateContainer.IKeyboardStateContainer KeyboardStateContainer
 
 <PageTitle>Editor</PageTitle>
 
-<McuView />
-<KeyboardLayoutEditorView />
+<RadzenTemplateForm TItem="KeyboardCommonDefinitions" Context="main" Data="@this._commonDefinitions" Submit="@this.OnSubmit" InvalidSubmit="@this.OnInvalidSubmit">
+    <RadzenStack Orientation="Orientation.Vertical">
+        <KeyboardCommonDefinitionsView @bind-CommonDefinitions="this._commonDefinitions" />
+        <McuView />
+        <KeyboardLayoutEditorView />
+        <QmkConfigBuilder.Shared.Common.CommonCard>
+            <RadzenStack Orientation="Orientation.Vertical">
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
+                    <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="Save" />
+                </RadzenStack>
+                @if (this.Errors.Any())
+                {
+                    <QmkConfigBuilder.Shared.Common.LabeledCard Label="Errors">
+                        <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="1">
+                            @foreach (var error in this.Errors)
+                            {
+                                <RadzenAlert AlertStyle="AlertStyle.Danger" Variant="Variant.Flat" Size="AlertSize.ExtraSmall" Shade="Shade.Lighter" AllowClose="false">@error</RadzenAlert>
+                            }
+                        </RadzenStack>
+                    </QmkConfigBuilder.Shared.Common.LabeledCard>
+                }
+            </RadzenStack>
+        </QmkConfigBuilder.Shared.Common.CommonCard>
+    </RadzenStack>
+</RadzenTemplateForm>
 @code {
+    private KeyboardCommonDefinitions _commonDefinitions = new();
+
+    private IEnumerable<string> Errors { get; set; } = Enumerable.Empty<string>();
+
+    private void OnSubmit(KeyboardCommonDefinitions model)
+    {
+        if (model.VID.HasMeaningfulValue())
+        {
+            this.KeyboardStateContainer.KeyboardDefinitions.VendorId = model.VID;
+        }
+
+        if (model.PID.HasMeaningfulValue())
+        {
+            this.KeyboardStateContainer.KeyboardDefinitions.ProductId = model.PID;
+        }
+
+        if(model.Manufacturer.HasMeaningfulValue())
+        {
+            this.KeyboardStateContainer.KeyboardDefinitions.Manufacturer = model.Manufacturer;
+        }
+
+        if(model.Maintainer.HasMeaningfulValue())
+        {
+            this.KeyboardStateContainer.KeyboardDefinitions.Maintainer = model.Maintainer;
+        }
+
+        if(model.KeyboardName.HasMeaningfulValue())
+        {
+            this.KeyboardStateContainer.KeyboardDefinitions.KeyboardName = model.KeyboardName;
+        }
+    }
+
+    private void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+    {
+        this.Errors = args.Errors;
+    }
 
 }

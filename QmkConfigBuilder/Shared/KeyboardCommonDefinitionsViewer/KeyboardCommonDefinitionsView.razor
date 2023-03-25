@@ -1,0 +1,62 @@
+﻿@using QmkConfigBuilder.Models.KeyboardDefinitions;
+@using QmkConfigBuilder.Shared.Common;
+
+<CommonCard>
+    <RadzenStack Orientation="Orientation.Horizontal">
+        <RadzenCard>
+            <RadzenStack Orientation="Orientation.Vertical">
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
+                    <RadzenLabel Text="VID" />
+                    <div>
+                        <IdNormalizeTextBox Name="VID" Placeholder="@KeyboardDefinitions.DefaultVendorId" @bind-Value="@this.CommonDefinitions.VID" Style="display:block;" />
+                        <RadzenRegexValidator Component="VID" Pattern="(0x)?[a-fA-F0-9]{4}" Text="VID must be from 0x0000 to 0xFFFF" Popup="true" Style="position:absolute;" />
+                    </div>
+                </RadzenStack>
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
+                    <RadzenLabel Text="PID" />
+                    <div>
+                        <IdNormalizeTextBox Name="PID" Placeholder="@KeyboardDefinitions.DefaultProductId" @bind-Value="@this.CommonDefinitions.PID" Style="display:block;" />
+                        <RadzenRegexValidator Component="PID" Pattern="(0x)?[a-fA-F0-9]{4}" Text="PID must be from 0x0000 to 0xFFFF" Popup="true" Style="position:absolute;" />
+                    </div>
+                </RadzenStack>
+            </RadzenStack>
+        </RadzenCard>
+        <RadzenCard>
+            <RadzenStack Orientation="Orientation.Vertical">
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
+                    <RadzenLabel Text="@nameof(KeyboardDefinitions.Manufacturer)" />
+                    <RadzenTextBox @bind-Value="@this.CommonDefinitions.Manufacturer" Style="display:block" />
+                </RadzenStack>
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
+                    <RadzenLabel Text="@nameof(KeyboardDefinitions.Maintainer)" />
+                    <div>
+                        <RadzenTextBox Name="@nameof(KeyboardDefinitions.Maintainer)" @bind-Value="@this.CommonDefinitions.Maintainer" Style="display:block" />
+                        <RadzenRequiredValidator Component="@nameof(KeyboardDefinitions.Maintainer)" Text="@($"Enter {nameof(KeyboardDefinitions.Maintainer)}")" Popup="true" Style="position:absolute" />
+                    </div>
+                </RadzenStack>
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
+                    <RadzenLabel Text="Keyboard name" />
+                    <div>
+                        <RadzenTextBox Name="@nameof(KeyboardDefinitions.KeyboardName)" @bind-Value="@this.CommonDefinitions.KeyboardName" Style="display:block" />
+                        <RadzenRequiredValidator Component="@nameof(KeyboardDefinitions.KeyboardName)" Text="Enter keyboard name" Popup="true" Style="position:absolute" />
+                    </div>
+                </RadzenStack>
+            </RadzenStack>
+        </RadzenCard>
+        <RadzenCard>
+            <RadzenStack Orientation="Orientation.Vertical">
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
+                    <RadzenLabel Text="Diode direction" />
+                    <RadzenDropDown @bind-Value="@this.CommonDefinitions.DiodeDirection" Data="Enum.GetValues<DiodeDirection>().Cast<Enum>()" />
+                </RadzenStack>
+            </RadzenStack>
+        </RadzenCard>
+    </RadzenStack>
+</CommonCard>
+
+@code {
+    [Parameter]
+    public KeyboardCommonDefinitions CommonDefinitions { get; set; } = default!;
+    [Parameter]
+    public EventCallback<KeyboardCommonDefinitions> CommonDefinitionsChanged { get; set; }
+}
