@@ -10,6 +10,7 @@ namespace QmkConfigBuilder.Models.KeyboardComponents
         public int Count => this._rows.Count;
         public IEnumerable<IRow> Rows => this._rows;
         public IEnumerable<IKey> AllKeys => this.GetAllKeys();
+        public IEnumerable<IEncoder> AllEncoders => this.GetAllEncoders();
 
         public Layout() : this("BASE") { }
 
@@ -25,6 +26,19 @@ namespace QmkConfigBuilder.Models.KeyboardComponents
             {
                 this._rows.Add(new Row(row));
             }
+        }
+
+        public int GetRowIndex(IKey? key)
+        {
+            var index = this.Count == 0 ? 0 : this.Count - 1;
+
+            if (key is null)
+            {
+                return index;
+            }
+
+            return this.Rows.Select((x, i) => new { Index = i, Row = x })
+                .FirstOrDefault(x => x.Row.ContainsKey(key.Id))?.Index ?? index;
         }
 
         public void AddKey(IKey key)
@@ -66,6 +80,12 @@ namespace QmkConfigBuilder.Models.KeyboardComponents
 
         public void AddKey(IKey key, int row)
         {
+            if (this.Count == 0 || row < 0 || this.Count <= row)
+            {
+                this.AddKey(key);
+                return;
+            }
+
             var preKey = this._rows[row].Last();
 
             key.Row = preKey.Row;
@@ -73,9 +93,66 @@ namespace QmkConfigBuilder.Models.KeyboardComponents
             this._rows[row].AddKey(key);
         }
 
+        public void AddEncoder(IEncoder encoder)
+        {
+            if (this._rows.Count == 0)
+            {
+                var row = new Row();
+                row.AddEncoder(encoder);
+
+                this._rows.Add(row);
+                return;
+            }
+
+            if (this._rows.Count == 1)
+            {
+                this._rows[0].AddEncoder(encoder);
+                return;
+            }
+
+            var upperRow = this._rows[this.Count - 2];
+            var currentRow = this._rows.Last();
+
+            if (currentRow.Count >= upperRow.Count)
+            {
+                var lastKey = currentRow.Last();
+                encoder.Row = lastKey.Row;
+                encoder.PosY = lastKey.PosY;
+            }
+            else
+            {
+                var upperKey = upperRow[currentRow.Count];
+                encoder.Row = (ushort?)(upperKey.Row + 1);
+                encoder.PosX = upperKey.PosX;
+                encoder.PosY = upperKey.PosY + upperKey.Height;
+            }
+
+            this._rows.Last().AddEncoder(encoder);
+        }
+
+        public void AddEncoder(IEncoder encoder, int row)
+        {
+            if (this.Count == 0 || row < 0 || this.Count <= row)
+            {
+                this.AddEncoder(encoder);
+                return;
+            }
+
+            var preKey = this._rows[row].Last();
+
+            encoder.Row = preKey.Row;
+            encoder.PosY = preKey.PosY;
+            this._rows[row].AddEncoder(encoder);
+        }
+
         public IKey GetKey(Guid id)
         {
             return this._rows.First(x => x.ContainsKey(id)).GetKey(id);
+        }
+
+        public IEncoder? GetEncoder(Guid id)
+        {
+            return this.AllEncoders.FirstOrDefault(x => x.Id == id);
         }
 
         public IKey GetKey(int row, int col)
@@ -249,6 +326,16 @@ namespace QmkConfigBuilder.Models.KeyboardComponents
             }
 
             return this._rows.SelectMany(x => x.Keys);
+        }
+
+        private IEnumerable<IEncoder> GetAllEncoders()
+        {
+            if (this._rows.Count == 0)
+            {
+                return Enumerable.Empty<IEncoder>();
+            }
+
+            return this._rows.SelectMany(x => x.Encoders);
         }
     }
 }

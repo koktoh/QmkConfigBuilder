@@ -8,11 +8,16 @@ namespace QmkConfigBuilder.Models.KeyboardComponents
         int Count { get; }
         IEnumerable<IRow> Rows { get; }
         IEnumerable<IKey> AllKeys { get; }
+        IEnumerable<IEncoder> AllEncoders { get; }
 
+        int GetRowIndex(IKey? key);
         void AddKey(IKey key);
         void AddKey(IKey key, int row);
+        void AddEncoder(IEncoder encoder);
+        void AddEncoder(IEncoder encoder, int row);
         IKey GetKey(Guid id);
         IKey GetKey(int row, int col);
+        IEncoder? GetEncoder(Guid id);
         void AddRow();
         void AddColumn();
         IEnumerable<IKey> GetPhysicalRow(int index);

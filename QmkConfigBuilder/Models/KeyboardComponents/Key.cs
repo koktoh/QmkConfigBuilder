@@ -3,10 +3,9 @@ using QmkConfigBuilder.Extensions;
 
 namespace QmkConfigBuilder.Models.KeyboardComponents
 {
-    public class Key : IKey
+    public partial class Key : IKey
     {
         private readonly Guid _id;
-
 
         public Guid Id => this._id;
         public string Label { get; set; } = string.Empty;
@@ -33,9 +32,21 @@ namespace QmkConfigBuilder.Models.KeyboardComponents
         public string LegendFrontCenter { get; set; } = string.Empty;
         public string LegendFrontRight { get; set; } = string.Empty;
 
-        public Key()
+        public Key() : this(string.Empty, KeyType.Normal) { }
+
+        public Key(string legend) : this(legend, KeyType.Normal) { }
+
+        public Key(KeyType keyType) : this(string.Empty, keyType) { }
+
+        public Key(string legend, KeyType keyType)
         {
             this._id = Guid.NewGuid();
+
+            this.LegendTopLeft = legend;
+            var keySize = KeySize.GetKeySize(keyType);
+
+            this.Width = keySize.Width;
+            this.Height = keySize.Height;
         }
 
         public Key(IKey key) : this()
@@ -52,7 +63,7 @@ namespace QmkConfigBuilder.Models.KeyboardComponents
             this.LegendTopCenter = key.LegendTopCenter;
             this.LegendTopRight = key.LegendTopRight;
             this.LegendCenterLeft = key.LegendCenterLeft;
-            this.LegendCenter= key.LegendCenter;
+            this.LegendCenter = key.LegendCenter;
             this.LegendCenterRight = key.LegendCenterRight;
             this.LegendBottomLeft = key.LegendBottomLeft;
             this.LegendBottomCenter = key.LegendBottomCenter;
@@ -70,7 +81,7 @@ namespace QmkConfigBuilder.Models.KeyboardComponents
         private string BuildLegend()
         {
             var regend = this.EnumerateLegendParts().Join(@"\n");
-            return Regex.Replace(regend, @"^(.*?)(\\n)*$", "$1");
+            return LegendRegex().Replace(regend, "$1");
         }
 
         private IEnumerable<string> EnumerateLegendParts()
@@ -99,5 +110,8 @@ namespace QmkConfigBuilder.Models.KeyboardComponents
         {
             return this.Id.GetHashCode();
         }
+
+        [GeneratedRegex("^(.*?)(\\\\n)*$")]
+        private static partial Regex LegendRegex();
     }
 }
