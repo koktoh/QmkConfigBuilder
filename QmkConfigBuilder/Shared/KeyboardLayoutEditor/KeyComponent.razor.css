@@ -73,3 +73,20 @@
         width: calc(var(--key-content-width) * var(--key-unit-width) - (var(--key-content-padding) + var(--key-border-length)) * 2);
         height: calc(var(--key-content-height) * var(--key-unit-height) - (var(--key-content-padding) + var(--key-border-length)) * 2);
     }
+
+::deep.key-content.encoder {
+    --key-border-radious: calc(var(--key-content-width) / 2);
+    --key-radius: calc(var(--key-content-width) / 2);
+}
+
+    ::deep.key-content.encoder > .push-switch {
+        position: absolute;
+        border: var(--key-border-length) solid var(--key-border-color);
+        background-color: transparent;
+        left: calc(var(--key-content-width) * 0.2);
+        top: calc(var(--key-content-height) * 0.2);
+        width: calc(var(--key-content-width) * 0.6);
+        height: calc(var(--key-content-height) * 0.6);
+        border-radius: 100%;
+        cursor: pointer;
+    }

@@ -6,12 +6,23 @@
 <CommonCard id="matrix-editor">
     <RadzenStack Orientation="Orientation.Vertical">
         <RadzenStack Orientation="Orientation.Horizontal">
-            <RadzenSplitButton Text="Add Key" Variant="Variant.Flat" Click="@(args =>this.OnClickAddKey(args))" Disabled="@this.LayoutStateContainer.EditingMatrix">
-                <RadzenSplitButtonItem Text="Add ISO Enter" Value="@(KeyType.ISOEnter.ToString())" />
-            </RadzenSplitButton>
-            <RadzenButton Text="Add Row" Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Success" Click="this.OnClickAddRow" Disabled="@(this.LayoutStateContainer.CurrentLayout.Count <= 0 || this.LayoutStateContainer.EditingMatrix)" />
-            <RadzenButton Text="Add Column" Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Warning" Click="this.OnClickAddColumn" Disabled="@(this.LayoutStateContainer.CurrentLayout.Count <= 0 || this.LayoutStateContainer.EditingMatrix)" />
-            <RadzenButton Text="Delete Key" Variant="Variant.Flat" ButtonStyle="ButtonStyle.Danger" Click="this.OnClickDeleteKey" Disabled="@(this.LayoutStateContainer.CurrentLayout.Count <= 0 || this.LayoutStateContainer.EditingMatrix)" />
+            <RadzenCard>
+                <RadzenStack Orientation="Orientation.Horizontal">
+                    <RadzenSplitButton Text="Add Key" Variant="Variant.Flat" Click="@(args => this.OnClickAddKey(args))" Disabled="@this.LayoutStateContainer.EditingMatrix">
+                        <RadzenSplitButtonItem Text="Add ISO Enter" Value="@(KeyType.ISOEnter.ToString())" />
+                    </RadzenSplitButton>
+                    <RadzenButton Text="Add Row" Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Success" Click="this.OnClickAddRow" Disabled="@(this.LayoutStateContainer.CurrentLayout.Count <= 0 || this.LayoutStateContainer.EditingMatrix)" />
+                    <RadzenButton Text="Add Column" Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Warning" Click="this.OnClickAddColumn" Disabled="@(this.LayoutStateContainer.CurrentLayout.Count <= 0 || this.LayoutStateContainer.EditingMatrix)" />
+                </RadzenStack>
+            </RadzenCard>
+            <RadzenCard>
+                <RadzenSplitButton Text="Add Encoder" Variant="Variant.Flat" Click="@(args => this.OnClickAddEncoder(args))" Disabled="@this.LayoutStateContainer.EditingMatrix">
+                    <RadzenSplitButtonItem Text="Add Encoder no switch" />
+                </RadzenSplitButton>
+            </RadzenCard>
+            <RadzenCard>
+                <RadzenButton Text="Delete Key" Variant="Variant.Flat" ButtonStyle="ButtonStyle.Danger" Click="this.OnClickDeleteKey" Disabled="@(this.LayoutStateContainer.CurrentLayout.Count <= 0 || this.LayoutStateContainer.EditingMatrix)" />
+            </RadzenCard>
         </RadzenStack>
         <RadzenTabs RenderMode="TabRenderMode.Client" @bind-SelectedIndex="@this.LayoutStateContainer.Index">
             <Tabs>
@@ -22,18 +33,18 @@
                             <RadzenStack Orientation="Orientation.Vertical">
                                 <KeyInfoView Disabled="this.LayoutStateContainer.EditingMatrix" />
                                 <MatrixEditorView Disabled="@(this.LayoutStateContainer.CurrentLayout.Count <= 0)">
-                                    <LabeledSwitch Label="Show Matrix" Value="@this._matrixVisiblity" ValueChanged="@this.OnVisiblityChanged" Disabled="@(this.LayoutStateContainer.CurrentLayout.Count <= 0 || this.LayoutStateContainer.EditingMatrix)" />
+                                    <LabeledSwitch Label="Show Matrix" @bind-Value="@this._matrixVisibility" Disabled="@(this.LayoutStateContainer.CurrentLayout.Count <= 0 || this.LayoutStateContainer.EditingMatrix)" />
                                 </MatrixEditorView>
                             </RadzenStack>
                             <KeyboardLayoutView EnableMultipleSelection="@this.LayoutStateContainer.EditingMatrix" SelectedKeyList="@this.LayoutStateContainer.SelectedKeyList" SelectedKeyChanged="this.OnSelectedKeyChanged">
                                 @foreach (var def in this.LayoutStateContainer.GetMatrixDefinitions(MatrixType.Column))
                                 {
-                                    <MatrixCanvas @key="def" MatrixDefinition="def" />
+                                    <MatrixCanvas @key="def" MatrixDefinition="def" Show="this.GetMatrixVisibility(def)" />
                                 }
 
                                 @foreach (var def in this.LayoutStateContainer.GetMatrixDefinitions(MatrixType.Row))
                                 {
-                                    <MatrixCanvas @key="def" MatrixDefinition="def" />
+                                    <MatrixCanvas @key="def" MatrixDefinition="def" Show="this.GetMatrixVisibility(def)" />
                                 }
                             </KeyboardLayoutView>
                         </RadzenStack>

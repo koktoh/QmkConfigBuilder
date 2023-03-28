@@ -8,7 +8,7 @@
         {
             foreach (var key in row.Keys)
             {
-                <KeyComponent @key="key" Key="key" IsSelected="this.IsSelected(key)" OnClickCallback="this.OnClick" />
+                <KeyComponent @key="key" Key="key" Encoders="this.LayoutStateContainer.CurrentLayout.AllEncoders" IsSelected="this.IsSelected(key)" OnClickCallback="this.OnClick" />
             }
         }
         @ChildContent

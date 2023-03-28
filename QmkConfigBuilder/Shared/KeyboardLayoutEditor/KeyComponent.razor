@@ -14,6 +14,14 @@
                 <div class="key upper"></div>
                 <div class="key lower"></div>
                 break;
+            case KeyType.Encoder:
+                <div class="key-border"></div>
+                <div class="key"></div>
+                if (this.HasSwitch())
+                {
+                    <div class="push-switch"></div>
+                }
+                break;
             case KeyType.Normal:
             case KeyType.BigAssEnter:
             default:
@@ -29,10 +37,13 @@
     public IKey? Key { get; set; }
 
     [Parameter]
+    public IEnumerable<IEncoder>? Encoders { get; set; }
+
+    [Parameter]
     public bool IsSelected { get; set; } = false;
 
     [Parameter]
-    public EventCallback<IKey?> OnClickCallback { get; set; }
+    public EventCallback<IKey> OnClickCallback { get; set; }
 
     private readonly IReadOnlyCollection<string> _cssClass = new[] { "key-content" };
 
@@ -57,11 +68,30 @@
         {
             case KeyType.ISOEnter:
                 return this._cssClass.Append("iso-enter").JoinSpace();
+            case KeyType.Encoder:
+                return this._cssClass.Append("encoder").JoinSpace();
             case KeyType.Normal:
             case KeyType.BigAssEnter:
             default:
                 return this._cssClass.JoinSpace();
         }
+    }
+
+    private bool HasSwitch()
+    {
+        if (this.Encoders is null || this.Key is null)
+        {
+            return false;
+        }
+
+        if (!this.Encoders.Select(x => x.Id).Contains(this.Key.Id))
+        {
+            return false;
+        }
+
+        var target = this.Encoders.Select((x, i) => new { x.Id, Index = i }).First(x => x.Id == this.Key.Id);
+
+        return this.Encoders.ElementAt(target.Index).HasSwitch;
     }
 
     private async Task OnClick()

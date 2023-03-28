@@ -10,42 +10,28 @@ namespace QmkConfigBuilder.Shared.KeyboardLayoutEditor
     public partial class KeyboardLayoutEditorView : IDisposable
     {
         [Inject]
-        public IJSRuntime JS { get; set; } = default!;
-        [Inject]
         public ILayoutStateContainer LayoutStateContainer { get; set; } = default!;
 
-        private bool _matrixVisiblity = false;
-        
+        private bool _matrixVisibility = false;
+
+        private bool GetMatrixVisibility(MatrixDefinitions matrixDefinitions)
+        {
+            return (this._matrixVisibility || this.LayoutStateContainer.EditingMatrix) && (this.LayoutStateContainer.SelectedMatrix is null || this.LayoutStateContainer.SelectedMatrix == matrixDefinitions);
+        }
+
         private void AddKey(IKey key)
         {
-            if (this.LayoutStateContainer.LastSelectedKey is null)
-            {
-                this.LayoutStateContainer.AddKey(key);
-                return;
-            }
-
-            if (this.LayoutStateContainer.LastSelectedKey.Row is null)
-            {
-                this.LayoutStateContainer.AddKey(key);
-                return;
-            }
-
-            var index = (int)this.LayoutStateContainer.LastSelectedKey.Row.Value;
-
-            this.LayoutStateContainer.AddKey(key, index);
-            this.LayoutStateContainer.LastSelectedKey = this.LayoutStateContainer.CurrentLayout.GetKey(key.Id);
+            this.LayoutStateContainer.AddKey(key);
         }
 
         private void AddIsoEnter()
         {
-            var key = new Key()
-            {
-                Width = 1.5,
-                Height = 2,
-                KeyType = KeyType.ISOEnter,
-            };
+            this.AddKey(new Key(KeyType.ISOEnter));
+        }
 
-            this.AddKey(key);
+        private void AddEncoder(IEncoder encoder)
+        {
+            this.LayoutStateContainer.AddEncoder(encoder);
         }
 
         private void OnClickAddKey(RadzenSplitButtonItem item)
@@ -77,6 +63,17 @@ namespace QmkConfigBuilder.Shared.KeyboardLayoutEditor
         private void OnClickAddColumn()
         {
             this.LayoutStateContainer.AddColumn();
+        }
+
+        private void OnClickAddEncoder(RadzenSplitButtonItem item)
+        {
+            if (item is null)
+            {
+                this.AddEncoder(new Encoder());
+                return;
+            }
+
+            this.AddEncoder(new Encoder(false));
         }
 
         private void OnClickDeleteKey()
@@ -113,22 +110,6 @@ namespace QmkConfigBuilder.Shared.KeyboardLayoutEditor
             else
             {
                 this.LayoutStateContainer.UpdateSelectedKeyProperty(targetProperty, this.LayoutStateContainer.SelectedMatrix.Index);
-            }
-        }
-
-        private async Task OnVisiblityChanged(bool visible)
-        {
-            var utility = new JSUtility(this.JS);
-
-            this._matrixVisiblity = visible;
-
-            if (this._matrixVisiblity)
-            {
-                await utility.ShowAsync(".matrix-canvas");
-            }
-            else
-            {
-                await utility.HideAsync(".matrix-canvas");
             }
         }
 
