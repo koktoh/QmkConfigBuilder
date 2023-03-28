@@ -28,8 +28,11 @@ namespace QmkConfigBuilder.StateContainer
         void RemoveColumn(int index);
         void AddKey(IKey key);
         void AddKey(IKey key, int row);
+        void AddEncoder(IEncoder encoder);
+        void AddEncoder(IEncoder encoder, int row);
         void RemoveKey();
         void RemoveKey(Guid id);
         void UpdateSelectedKeyProperty(string propertyName, object? value);
+        void UpdateSelectedEncoderProperty(string propertyName, object? value);
     }
 }

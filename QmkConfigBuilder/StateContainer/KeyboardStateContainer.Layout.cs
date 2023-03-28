@@ -5,7 +5,6 @@ namespace QmkConfigBuilder.StateContainer
 {
     public partial class KeyboardStateContainer : ILayoutStateContainer
     {
-
         private readonly IList<IKey> _selectedKeyList;
 
         private int _index = 0;
@@ -191,17 +190,38 @@ namespace QmkConfigBuilder.StateContainer
 
         public void AddKey(IKey key)
         {
-            this.CurrentLayout.AddKey(key);
+            var index = this.CurrentLayout.GetRowIndex(this.LastSelectedKey);
 
-            var addedKey = this.CurrentLayout.GetKey(key.Id);
-
-            this.AddMatrixRow(new MatrixDefinitions(MatrixType.Row, addedKey.Row ?? 0));
-            this.AddMatrixColumn(new MatrixDefinitions(MatrixType.Column, addedKey.Column ?? 0));
+            this.AddKey(key, index);
         }
 
         public void AddKey(IKey key, int row)
         {
             this.CurrentLayout.AddKey(key, row);
+
+            var addedKey = this.CurrentLayout.GetKey(key.Id);
+
+            this.LastSelectedKey = addedKey;
+            this.AddMatrixRow(new MatrixDefinitions(MatrixType.Row, addedKey.Row ?? 0));
+            this.AddMatrixColumn(new MatrixDefinitions(MatrixType.Column, addedKey.Column ?? 0));
+        }
+
+        public void AddEncoder(IEncoder encoder)
+        {
+            var index = this.CurrentLayout.GetRowIndex(this.LastSelectedKey);
+
+            this.AddEncoder(encoder, index);
+        }
+
+        public void AddEncoder(IEncoder encoder, int row)
+        {
+            this.CurrentLayout.AddEncoder(encoder, row);
+
+            var addedKey = this.CurrentLayout.GetKey(encoder.Id);
+
+            this.LastSelectedKey = addedKey;
+            this.AddMatrixRow(new MatrixDefinitions(MatrixType.Row, addedKey.Row ?? 0));
+            this.AddMatrixColumn(new MatrixDefinitions(MatrixType.Column, addedKey.Column ?? 0));
         }
 
         public void RemoveKey()
@@ -224,6 +244,17 @@ namespace QmkConfigBuilder.StateContainer
             }
 
             this.CurrentLayout.UpdateKey(this._lastSelectedKey.Id, propertyName, value);
+            this.NotifyLayoutChanged();
+        }
+
+        public void UpdateSelectedEncoderProperty(string propertyName, object? value)
+        {
+            if (this._lastSelectedKey is null)
+            {
+                return;
+            }
+
+            this.CurrentLayout.GetEncoder(this._lastSelectedKey.Id)?.Update(propertyName, value);
             this.NotifyLayoutChanged();
         }
     }

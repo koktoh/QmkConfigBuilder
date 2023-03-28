@@ -37,7 +37,7 @@ namespace QmkConfigBuilder.StateContainer
             this.NotifyLoadDefinitions();
         }
 
-        public void UpdateProperty(string propertyName,object value) 
+        public void UpdateProperty(string propertyName, object value)
         {
             this.NotifyKeyboardPropertyChanged();
         }
