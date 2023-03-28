@@ -9,6 +9,8 @@ namespace QmkConfigBuilder.Models.KeyboardDefinitions
         public int Capacity { get; }
 
         public bool HasPins => this._selectedPins.Any();
+        
+        public int PinCount => this._selectedPins.Count;
 
         public IEnumerable<IPin> SelectedPins => this._selectedPins;
 
@@ -85,7 +87,7 @@ namespace QmkConfigBuilder.Models.KeyboardDefinitions
 
             this._selectedPins.Remove(pin);
         }
-        
+
         public bool ContainsPin(IPin pin)
         {
             return this._selectedPins.Contains(pin);

@@ -6,6 +6,7 @@ namespace QmkConfigBuilder.Models.KeyboardDefinitions
     {
         int Capacity { get; }
         bool HasPins { get; }
+        int PinCount { get; }
         IEnumerable<IPin> SelectedPins { get; }
 
         void SetPin(int index, IPin pin);

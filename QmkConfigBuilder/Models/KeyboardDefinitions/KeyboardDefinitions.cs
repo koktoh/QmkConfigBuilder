@@ -1,5 +1,6 @@
 ﻿using QmkConfigBuilder.Models.KeyboardComponents;
 using QmkConfigBuilder.Models.KeyboardDefinitions.Backlight;
+using QmkConfigBuilder.Models.KeyboardDefinitions.Encoder;
 using QmkConfigBuilder.Models.KeyboardDefinitions.Indicator;
 using QmkConfigBuilder.Models.KeyboardDefinitions.Matrix;
 using QmkConfigBuilder.Models.KeyboardDefinitions.RgbLighting;
@@ -36,6 +37,9 @@ namespace QmkConfigBuilder.Models.KeyboardDefinitions
 
         public IBacklightDefinitions Backlight { get; set; } = new BacklightDefinitions();
         public IRgbLightingDefinitions RgbLighting { get; set; } = new RgbLightingDefinitions();
+
+        public IEncoderPadDefinitions EncoderPadA { get; set; } = new EncoderPadDefinitions();
+        public IEncoderPadDefinitions EncoderPadB { get; set; } = new EncoderPadDefinitions();
 
         public IList<ILayout> Layouts { get; set; } = new List<ILayout> { new Layout() };
 
