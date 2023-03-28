@@ -34,39 +34,23 @@ namespace QmkConfigBuilder.Shared.MatrixEditor
         [Parameter]
         public EventCallback EditButtonClicked { get; set; }
 
-        private MatrixDefinitions? GetSelectedMatrixDefinitions()
+        private MatrixDefinitions? SelectedMatrixDefinitions
         {
-            if (this.MatrixStateContainer.SelectedMatrix?.MatrixType == this.MatrixType)
+            get => this.MatrixStateContainer.SelectedMatrix?.MatrixType == this.MatrixType ? this.MatrixStateContainer.SelectedMatrix : null;
+            set
             {
-                return this.MatrixStateContainer.SelectedMatrix;
-            }
+                this.MatrixStateContainer.SelectedMatrix = value;
 
-            return null;
-        }
-
-        private IEnumerable<MatrixDefinitions> GetMatrixDefinitionsList()
-        {
-            var temp = this.MatrixStateContainer.GetMatrixDefinitions(this.MatrixType);
-
-            return temp;
-        }
-
-        private async Task OnDropDownValueChanged(object? args)
-        {
-            if (args is not MatrixDefinitions)
-            {
-                return;
-            }
-
-            this.MatrixStateContainer.SelectedMatrix = (MatrixDefinitions)args;
-
-            if (this.DropDownValueChanged.HasDelegate)
-            {
-                await this.DropDownValueChanged.InvokeAsync((MatrixDefinitions)args);
+                if (this.DropDownValueChanged.HasDelegate)
+                {
+                    this.DropDownValueChanged.InvokeAsync(value);
+                }
             }
         }
 
-        private void OnClickEditButton()
+        private IEnumerable<MatrixDefinitions> MatrixDefinitionsList => this.MatrixStateContainer.GetMatrixDefinitions(this.MatrixType);
+
+        private async Task OnClickEditButton()
         {
             if (this.MatrixStateContainer.SelectedMatrix is null)
             {
@@ -93,7 +77,7 @@ namespace QmkConfigBuilder.Shared.MatrixEditor
 
             if (this.EditButtonClicked.HasDelegate)
             {
-                this.EditButtonClicked.InvokeAsync();
+                await this.EditButtonClicked.InvokeAsync();
             }
         }
 

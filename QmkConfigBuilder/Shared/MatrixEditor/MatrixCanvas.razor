@@ -6,8 +6,8 @@
 @inject IJSRuntime JS
 @inject ILayoutStateContainer LayoutStateContainer
 
-<div class="matrix-canvas" id="@this.Id">
-    <Canvas width="@this.GetWidth()" height="@this.GetHeight()" @ref="this._canvas" />
+<div class="matrix-canvas">
+    <Canvas width="@this.GetWidth()" height="@this.GetHeight()" @ref="this._canvas" style="@this.GetDisplayStyle()"/>
 </div>
 
 @code {
@@ -23,7 +23,20 @@
     [Parameter]
     public MatrixDefinitions? MatrixDefinition { get; set; }
 
-    public string Id => $"l{this.LayoutStateContainer?.Index ?? 0}{(this.MatrixDefinition?.MatrixType == MatrixType.Row ? "r" : "c") ?? string.Empty}{this.MatrixDefinition?.Index ?? 0}";
+    [Parameter]
+    public bool Show { get; set; } = false;
+
+    private string GetDisplayStyle()
+    {
+        if(this.Show)
+        {
+            return "display:block;";
+        }
+        else
+        {
+            return "display:none;";
+        }
+    }
 
     private IEnumerable<IKey> GetKeys()
     {
