@@ -4,5 +4,7 @@
     {
         public TMS() : this(nameof(TMS)) { }
         public TMS(string label) : base(label) { }
+        public TMS(string label, string groupingTag) : base(label, groupingTag) { }
+        public TMS(string label, int groupingTag) : base(label, groupingTag) { }
     }
 }

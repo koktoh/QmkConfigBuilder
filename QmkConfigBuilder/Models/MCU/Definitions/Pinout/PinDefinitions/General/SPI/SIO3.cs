@@ -4,5 +4,7 @@
     {
         public SIO3() : this(nameof(SIO3)) { }
         public SIO3(string label) : base(label) { }
+        public SIO3(string label, string groupingTag) : base(label, groupingTag) { }
+        public SIO3(string label, int groupingTag) : base(label, groupingTag) { }
     }
 }

@@ -7,5 +7,7 @@
         public override PinFunctionType PinFunctionType => PinFunctionType.USB;
 
         public USBPinFunctionBase(string label) : base(label) { }
+        public USBPinFunctionBase(string label, string groupingTag) : base(label, groupingTag) { }
+        public USBPinFunctionBase(string label, int groupingTag) : base(label, groupingTag) { }
     }
 }

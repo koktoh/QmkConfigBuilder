@@ -4,5 +4,7 @@
     {
         public SWDIO() : this(nameof(SWDIO)) { }
         public SWDIO(string label) : base(label) { }
+        public SWDIO(string label, string groupingTag) : base(label, groupingTag) { }
+        public SWDIO(string label, int groupingTag) : base(label, groupingTag) { }
     }
 }

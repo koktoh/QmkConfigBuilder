@@ -4,5 +4,7 @@
     {
         public SCLK() : base(nameof(SCLK)) { }
         public SCLK(string label) : base(label) { }
+        public SCLK(string label, string groupingTag) : base(label, groupingTag) { }
+        public SCLK(string label, int groupingTag) : base(label, groupingTag) { }
     }
 }
